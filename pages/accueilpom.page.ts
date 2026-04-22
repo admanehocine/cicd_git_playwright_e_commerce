@@ -9,10 +9,21 @@ export class accueilpom{
    //locator 
    elements={
         inscription:()=>this.page.getByRole('link', {name:'Inscription'}),
+        connexion:()=>this.page.getByRole('link',{name: 'connexion'})
 
    }
    async clickinscription(){
    await this.elements.inscription().click();
    }
+   async clickconnexion(){
+   await this.elements.connexion().click();
+   }
+   getInscription(){
+      return this.elements.inscription()
+   }
+   getConnexion(){
+      return this.elements.connexion()
+   }
+
    
 }
