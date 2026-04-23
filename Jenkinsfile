@@ -23,9 +23,7 @@ pipeline{
                 }
 
                 stage('clean allure results'){
-                    when{
-                        expression { return params.ALLURE }
-                    }
+                    
                     steps{
                         sh '''
                             echo "Suppression du cache Allure..."
