@@ -20,6 +20,19 @@ pipeline{
                   steps{
                       sh 'npm ci'
                   }
+                stage('clean allure results'){
+                    when{
+                        expression { return params.ALLURE }
+                    }
+                    steps{
+                        sh '''
+                            echo "Suppression du cache Allure..."
+                            rm -rf allure-results
+                            mkdir -p allure-results
+                            echo "Dossier allure-results nettoyé avec succès"
+                        '''
+                    }
+                }
         }
         
         stage('run user test'){
