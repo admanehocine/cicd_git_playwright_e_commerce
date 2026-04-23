@@ -21,7 +21,7 @@ pipeline{
             agent{
                 docker{
                     image 'mcr.microsoft.com/playwright:v1.59.1-noble'
-                    args '-u root --entrypoint='
+                    args '--user 1000:1000'
                 }
             }
 
