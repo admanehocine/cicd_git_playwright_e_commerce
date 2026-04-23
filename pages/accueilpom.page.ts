@@ -9,7 +9,8 @@ export class accueilpom{
    //locator 
    elements={
         inscription:()=>this.page.getByRole('link', {name:'Inscription'}),
-        connexion:()=>this.page.getByRole('link',{name: 'connexion'})
+        connexion:()=>this.page.getByRole('link',{name: 'connexion'}),
+        btn_prenom :()=> this.page.locator('.d-none.d-md-inline')
 
    }
    async clickinscription(){
@@ -23,6 +24,9 @@ export class accueilpom{
    }
    getConnexion(){
       return this.elements.connexion()
+   }
+   getBtnPrenom(){
+      return this.elements.btn_prenom();
    }
 
    
