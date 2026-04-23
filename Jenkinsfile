@@ -1,5 +1,6 @@
 pipeline{
     agent any
+
     parameters{
         booleanParam(name:'ALLURE', defaultValue: false, description: 'generation de rapport allure')
         booleanParam(name: 'istags', defaultValue: false, description: 'executer avec ou sans tags')
@@ -7,7 +8,15 @@ pipeline{
         booleanParam(name: 'isbrowser', defaultValue: false, description: 'executer avec ou sans browser')
         choice(name: 'browser', choices: ['firefox','chromium','webkit'], description: 'Choisissez le choix du navigateur')   
     }
+
     stages{
+
+        stage('clean workspace'){
+            steps{
+                deleteDir()
+            }
+        }
+
         stage('global stage'){
             agent{
                 docker{
@@ -15,7 +24,9 @@ pipeline{
                     args '-u root --entrypoint='
                 }
             }
+
             stages{
+
                 stage('install deps'){
                     steps{
                         sh 'npm ci'
@@ -23,40 +34,39 @@ pipeline{
                 }
 
                 stage('clean allure results'){
-                    
                     steps{
                         sh '''
-                            echo "Suppression du cache Allure..."
                             rm -rf allure-results
                             mkdir -p allure-results
-                            echo "Dossier allure-results nettoyé avec succès"
                         '''
                     }
                 }
-        
+
                 stage('run user test'){
                     steps{  
                         script{
                             if(params.ALLURE){
                                 if(params.istags && params.isbrowser){
-                                    sh"npx playwright test --grep ${params.Tags} --project=${params.browser} --reporter=allure-playwright"
+                                    sh "npx playwright test --grep ${params.Tags} --project=${params.browser} --reporter=allure-playwright"
                                 } else if(params.isbrowser){
-                                    sh"npx playwright test --project=${params.browser} --reporter=allure-playwright"
+                                    sh "npx playwright test --project=${params.browser} --reporter=allure-playwright"
                                 }else if(params.istags){
-                                    sh"npx playwright test --grep ${params.Tags} --reporter=allure-playwright"
+                                    sh "npx playwright test --grep ${params.Tags} --reporter=allure-playwright"
                                 }else {
-                                    sh"npx playwright test --reporter=allure-playwright"
+                                    sh "npx playwright test --reporter=allure-playwright"
                                 }
-                                stash name: 'allure-results', includes: 'allure-results/*'
+
+                                stash name: 'allure-results', includes: 'allure-results/**'
+
                             }else {
                                 if(params.istags && params.isbrowser){
-                                    sh"npx playwright test --grep ${params.Tags} --project=${params.browser}"
+                                    sh "npx playwright test --grep ${params.Tags} --project=${params.browser}"
                                 } else if(params.isbrowser){
-                                    sh"npx playwright test --project=${params.browser}"
+                                    sh "npx playwright test --project=${params.browser}"
                                 }else if(params.istags){
-                                    sh"npx playwright test --grep ${params.Tags}"
+                                    sh "npx playwright test --grep ${params.Tags}"
                                 }else {
-                                    sh"npx playwright test"
+                                    sh "npx playwright test"
                                 }   
                             }
                         }
@@ -65,12 +75,19 @@ pipeline{
             }
         }
     }
+
     post{
         always{
             script{
                 if(params.ALLURE){
-                    unstash 'allure-results'
-                    archiveArtifacts 'allure-results/*'
+                    try {
+                        unstash 'allure-results'
+                    } catch (e) {
+                        echo "Pas de stash allure"
+                    }
+
+                    archiveArtifacts artifacts: 'allure-results/**', allowEmptyArchive: true
+
                     allure includeProperties: false,
                            jdk: '',
                            results: [[path: 'allure-results/']]
