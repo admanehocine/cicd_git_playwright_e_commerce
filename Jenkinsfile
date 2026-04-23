@@ -23,13 +23,13 @@ pipeline{
                     // ca verifie automatiquement que le parametre est egal à true
                     if(params.istags && params.isbrowser){
                         //vrai et vrai
-                        sh"npx playwright test --grep ${params.tags} --project=${params.browser}"
+                        sh"npx playwright test --grep ${params.Tags} --project=${params.browser}"
                     } else if(params.isbrowser){
                         //faux et vrai
                         sh"npx playwright test --project=${params.browser}"
                     }else if(params.istags){
                         //vrai et faux
-                        sh"npx playwright test --grep ${params.tags}"
+                        sh"npx playwright test --grep ${params.Tags}"
                     }else {
                         //faux et faux
                         sh"npx playwright test"
