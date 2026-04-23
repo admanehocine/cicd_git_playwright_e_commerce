@@ -18,7 +18,7 @@ test.beforeEach('setup', async ({ page }) => {
 //    Background: 
 
 //   Scenario: connexion invalide
-test("connexion invalide", async ({ page }) => {
+test("connexion invalide", { tag: "@invalide" }, async ({ page }) => {
     //     When je clique sur le bouton connexion
     //     And je saisis l'email "abrrr@gmail.com"
     await lp.saisirEmail("abrrr@gmail.com");
@@ -31,22 +31,21 @@ test("connexion invalide", async ({ page }) => {
     await expect(lp.getMsgMssError()).toBeVisible()
 })
 //   Scenario: connexion valide
-test("connexion valide", async ({ page }) => {
+test("connexion valide", { tag: "@valide" }, async ({ page }) => {
 
     //     And je saisis l'email "AB@gmail.com"
     await lp.saisirEmail("ab@gmail.com");
     //     And je saisis le mdp "123456"
     await lp.saisirMdp("123456");
-
     //     And je clique sur bouton se connecter
     await lp.clickbtn_seconnecter();
-    
-    //     Then verifier que le prenom "Az" s'affiche
-     expect(await acc.getConnexion().isVisible()).toBeFalsy()
-     expect(await acc.getInscription().isVisible()).toBeFalsy()
-
-
     //     And verifier que les deux boutons inscription et connexion n'apparaissent pas .
+    expect(await acc.getConnexion().isVisible()).toBeFalsy()
+    expect(await acc.getInscription().isVisible()).toBeFalsy()
+    //     Then verifier que le prenom "Az" s'affiche
+    await expect(acc.getBtnPrenom()).toContainText("AZ");
+
+
 })
 
 
