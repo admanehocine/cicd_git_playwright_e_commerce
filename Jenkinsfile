@@ -17,9 +17,11 @@ pipeline{
             }
             stages{
                 stage('install deps'){
-                  steps{
-                      sh 'npm ci'
-                  }
+                    steps{
+                        sh 'npm ci'
+                    }
+                }
+
                 stage('clean allure results'){
                     when{
                         expression { return params.ALLURE }
@@ -33,71 +35,49 @@ pipeline{
                         '''
                     }
                 }
-        }
         
-        stage('run user test'){
-            steps{  
-                script{
-                    if(params.ALLURE){
-                        // ca verifie automatiquement que le parametre est egal à true
-                        if(params.istags && params.isbrowser){
-                            //vrai et vrai
-                            sh"npx playwright test --grep ${params.Tags} --project=${params.browser} --reporter=allure-playwright"
-                        } else if(params.isbrowser){
-                            //faux et vrai
-                            sh"npx playwright test --project=${params.browser} --reporter=allure-playwright"
-                        }else if(params.istags){
-                            //vrai et faux
-                            sh"npx playwright test --grep ${params.Tags} --reporter=allure-playwright"
-                        }else {
-                            //faux et faux
-                            sh"npx playwright test --reporter=allure-playwright"
+                stage('run user test'){
+                    steps{  
+                        script{
+                            if(params.ALLURE){
+                                if(params.istags && params.isbrowser){
+                                    sh"npx playwright test --grep ${params.Tags} --project=${params.browser} --reporter=allure-playwright"
+                                } else if(params.isbrowser){
+                                    sh"npx playwright test --project=${params.browser} --reporter=allure-playwright"
+                                }else if(params.istags){
+                                    sh"npx playwright test --grep ${params.Tags} --reporter=allure-playwright"
+                                }else {
+                                    sh"npx playwright test --reporter=allure-playwright"
+                                }
+                                stash name: 'allure-results', includes: 'allure-results/*'
+                            }else {
+                                if(params.istags && params.isbrowser){
+                                    sh"npx playwright test --grep ${params.Tags} --project=${params.browser}"
+                                } else if(params.isbrowser){
+                                    sh"npx playwright test --project=${params.browser}"
+                                }else if(params.istags){
+                                    sh"npx playwright test --grep ${params.Tags}"
+                                }else {
+                                    sh"npx playwright test"
+                                }   
+                            }
                         }
-                        //copier temporarement tous  ls fichiers allure dans  dossier allure-results
-                        stash name: 'allure-results', includes: 'allure-results/*'
-                    }else {
-                        // ca verifie automatiquement que le parametre est egal à true
-                        if(params.istags && params.isbrowser){
-                            //vrai et vrai
-                            sh"npx playwright test --grep ${params.Tags} --project=${params.browser}"
-                        } else if(params.isbrowser){
-                            //faux et vrai
-                            sh"npx playwright test --project=${params.browser}"
-                        }else if(params.istags){
-                            //vrai et faux
-                            sh"npx playwright test --grep ${params.Tags}"
-                        }else {
-                            //faux et faux
-                            sh"npx playwright test"
-                        }   
                     }
-
                 }
-                
-                
             }
         }
-            }
-        }
-        
     }
     post{
         always{
-            //unstash 'junit-report'
-            //junit 'playwright-report/junit/results.xml'
             script{
                 if(params.ALLURE){
                     unstash 'allure-results'
                     archiveArtifacts 'allure-results/*'
-                    allure includeProperties:
-                     false,
-                     jdk: '',
-                     results: [[path: 'allure-results/']]
+                    allure includeProperties: false,
+                           jdk: '',
+                           results: [[path: 'allure-results/']]
                 }
             }
-            
         }
     }
 }
-
-
