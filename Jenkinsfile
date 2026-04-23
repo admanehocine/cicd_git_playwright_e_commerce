@@ -9,7 +9,7 @@ pipeline{
         booleanParam(name: 'istags', defaultValue: false, description: 'executer avec ou sans tags')
         choice(name: 'Tags', choices: ['@e2e', '@invalide', '@valide'], description: 'Choisissez le choix de tag')
         booleanParam(name: 'isbrowser', defaultValue: false, description: 'executer avec ou sans browser')
-        choice(name: 'browser', choices: ['firefox','chrome','webkit'], description: 'Choisissez le choix du navigateur')   
+        choice(name: 'browser', choices: ['firefox','chromium','webkit'], description: 'Choisissez le choix du navigateur')   
     }
     stages{
         stage('Installer les dependances'){
